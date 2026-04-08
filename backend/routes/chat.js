@@ -28,15 +28,20 @@ router.get('/threads',async(req,res)=>{
         res.status(500).json({message:"Error fetching threads"});
     }
 });
-router.get('/threads/:id',async(req,res)=>{
-    try{
-        const thread=await Thread.findById(req.params.id);
-        if(!thread)
-          return res.status(404).json({message:"Thread not found"});
+router.get('/threads/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const thread = await Thread.findOne({ threadId: id });
+
+        if (!thread) {
+            return res.status(404).json({ message: "Thread not found" });
+        }
+
         res.json(thread.messages);
-    }catch(err){
+    } catch (err) {
         console.log(err);
-        res.status(500).json({message:"Error fetching chats"});
+        res.status(500).json({ message: "Error fetching chats" });
     }
 });
 router.delete('/threads/:threadId',async(req,res)=>{
@@ -53,7 +58,7 @@ router.delete('/threads/:threadId',async(req,res)=>{
     }
 });
 router.post('/chat',async(req,res)=>{
-    const {threadId,message}=req.body;
+    let {threadId,message}=req.body;
     if(!threadId || !message)
       return res.status(400).json({message:"Thread ID and message are required"});
     try{
@@ -61,7 +66,7 @@ router.post('/chat',async(req,res)=>{
         if(!thread){
           thread=new Thread({
         threadId,
-        title:"message",
+        title : message,
         messages:[{role:"user",content:message}]
         });
        }
